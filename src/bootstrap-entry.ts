@@ -1,5 +1,5 @@
-import { ensureBootstrapMacro } from './bootstrapMacro'
+import { ensureBootstrapMacro } from './bootstrapMacro';
 
-ensureBootstrapMacro()
+ensureBootstrapMacro();
 
-await import('./entrypoints/cli.tsx')
+await import('./entrypoints/cli.tsx');
