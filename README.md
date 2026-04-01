@@ -66,67 +66,67 @@
   bun run version
   ```
 
-  ## 中文说明
+## Restoration Notes
 
-  # 还原后的 Claude Code 源码
+# Restored Claude Code Source
 
-  ![Preview](preview.png)
+![Preview](preview.png)
 
-  这个仓库是一个主要通过 source map 逆向还原、再补齐缺失模块后得到的 Claude Code 源码树。
+This repository is a Claude Code source tree reconstructed primarily from source maps, then filled in with missing modules.
 
-  它并不是上游仓库的原始状态。部分文件无法仅凭 source map 恢复，因此目前仍包含兼容 shim 或降级实现，以便项目可以重新安装并运行。
+It is not the upstream repository's original state. Some files cannot be recovered from source maps alone, so it still includes compatibility shims or degraded implementations to keep the project installable and runnable.
 
-  ### 当前状态
+### Current Status
 
-  - 该源码树已经可以在本地开发流程中恢复并运行。
-  - `bun install` 可以成功执行。
-  - `bun run version` 可以成功执行。
-  - `bun run dev` 现在会通过还原后的真实 CLI bootstrap 启动，而不是临时的 `dev-entry`。
-  - `bun run dev --help` 可以显示还原后的完整命令树。
-  - 仍有部分模块保留恢复期 fallback，因此行为可能与原始 Claude Code 实现不同。
+- This source tree can now be restored and run in a local dev workflow.
+- `bun install` runs successfully.
+- `bun run version` runs successfully.
+- `bun run dev` now boots via the restored real CLI bootstrap, not the temporary `dev-entry`.
+- `bun run dev --help` shows the restored full command tree.
+- Some modules still keep restoration-time fallbacks, so behavior may differ from the original Claude Code.
 
-  ### 已恢复内容
+### Restored Content
 
-  最近一轮恢复工作已经补回了最初 source-map 导入之外的几个关键部分：
+The most recent restoration pass backfilled several key parts beyond the initial source-map import:
 
-  - 默认 Bun 脚本现在会走真实的 CLI bootstrap 路径
-  - `claude-api` 和 `verify` 的 bundled skill 内容已经从占位文件恢复为可用参考文档
-  - Chrome MCP 和 Computer Use MCP 的兼容层现在会暴露更接近真实的工具目录，并返回结构化的降级响应，而不是空 stub
-  - 一些显式占位资源已经替换为可用的 planning 与 permission-classifier fallback prompt
+- The default Bun scripts now go through the real CLI bootstrap path.
+- The bundled skill content for `claude-api` and `verify` has been restored from placeholder files to usable reference docs.
+- The Chrome MCP and Computer Use MCP compatibility layers now expose a tool directory closer to the real one and return structured degraded responses instead of empty stubs.
+- Some explicit placeholder resources have been replaced with usable planning and permission-classifier fallback prompts.
 
-  当前剩余缺口主要集中在私有或原生集成部分，这些实现无法仅凭 source map 完整恢复，因此这些区域仍依赖 shim 或降级行为。
+Remaining gaps are mostly in private or native integrations. Those implementations cannot be fully recovered from source maps alone, so these areas still rely on shims or degraded behavior.
 
-  ### 为什么会有这个仓库
+### Why This Repo Exists
 
-  source map 本身并不能包含完整的原始仓库：
+Source maps themselves cannot contain the complete original repository:
 
-  - 类型专用文件经常缺失
-  - 构建时生成的文件可能不存在
-  - 私有包包装层和原生绑定可能无法恢复
-  - 动态导入和资源文件经常不完整
+- Type-specific files are often missing.
+- Build-time generated files may not exist.
+- Private package wrappers and native bindings may not be recoverable.
+- Dynamic imports and resource files are often incomplete.
 
-  这个仓库的目标是把这些缺口补到“可用、可运行”的程度，形成一个可继续修复的恢复工作区。
+The goal of this repository is to fill these gaps to a "usable, runnable" level, forming a restoration workspace that can continue to be repaired.
 
-  ### 运行方式
+### How To Run
 
-  环境要求：
+Environment requirements:
 
-  - Bun 1.3.5 或更高版本
-  - Node.js 24 或更高版本
+- Bun 1.3.5 or newer
+- Node.js 24 or newer
 
-  安装依赖：
+Install dependencies:
 
   ```bash
   bun install
   ```
 
-  运行恢复后的 CLI：
+Run the restored CLI:
 
   ```bash
   bun run dev
   ```
 
-  输出恢复后的版本号：
+Print the restored version:
 
   ```bash
   bun run version
