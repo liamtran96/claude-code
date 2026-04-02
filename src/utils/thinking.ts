@@ -86,18 +86,9 @@ export function getRainbowColor(
   return colors[charIndex % colors.length]!;
 }
 
-function isOllamaModel(model: string): boolean {
-  return model.startsWith('ollama:');
-}
-
 // TODO(inigo): add support for probing unknown models via API error detection
 // Provider-aware thinking support detection (aligns with modelSupportsISP in betas.ts)
 export function modelSupportsThinking(model: string): boolean {
-  // ✅ ADD THIS FIRST
-  if (isOllamaModel(model)) {
-    return true; // or configurable if you want
-  }
-
   const supported3P = get3PModelCapabilityOverride(model, 'thinking');
   if (supported3P !== undefined) {
     return supported3P;

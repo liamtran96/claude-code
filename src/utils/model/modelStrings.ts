@@ -144,14 +144,6 @@ export function getModelStrings(): ModelStrings {
   return applyModelOverrides(ms);
 }
 
-export function getGroqModelStrings() {
-  return {
-    llama3_70b: 'llama-3.1-70b-versatile',
-    llama3_8b: 'llama-3.1-8b-instant',
-    gpt_oss_120b: 'openai/gpt-oss-120b'
-  };
-}
-
 /**
  * Ensure model strings are fully initialized.
  * For Bedrock users, this waits for the profile fetch to complete.

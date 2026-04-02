@@ -5,7 +5,7 @@ import {
   isMaxSubscriber,
   isTeamPremiumSubscriber
 } from '../auth.js';
-import { getGroqModelStrings, getModelStrings } from './modelStrings.js';
+import { getModelStrings } from './modelStrings.js';
 import {
   COST_TIER_3_15,
   COST_HAIKU_35,
@@ -65,14 +65,6 @@ export function getDefaultOptionForUser(fastMode = false): ModelOption {
     };
   }
   const provider = getAPIProvider();
-
-  if (provider === 'groq') {
-    return {
-      value: null,
-      label: 'Default (recommended)',
-      description: `Use the default Groq model (currently ${getGroqModelStrings().gpt_oss_120b})`
-    };
-  }
 
   // PAYG
   const is3P = provider !== 'firstParty';
@@ -169,19 +161,6 @@ export function getOpus46_1MOption(fastMode = false): ModelOption {
     description: `Opus 4.6 for long sessions${getOpus46PricingSuffix(fastMode)}`,
     descriptionForModel:
       'Opus 4.6 with 1M context window - for long sessions with large codebases'
-  };
-}
-
-function getOllamaOption(): ModelOption | undefined {
-  const ollamaModel = process.env.OLLAMA_MODEL_NAME ?? 'llama3';
-
-  return {
-    value: `ollama:${ollamaModel}`,
-    label: process.env.OLLAMA_MODEL_NAME ?? 'Ollama (Local)',
-    description:
-      process.env.OLLAMA_MODEL_DESCRIPTION ??
-      `Local model via Ollama (${ollamaModel})`,
-    descriptionForModel: `Ollama local model (${ollamaModel})`
   };
 }
 
@@ -289,26 +268,6 @@ function getOpusPlanOption(): ModelOption {
   };
 }
 
-function getGroqOptions(): ModelOption[] {
-  return [
-    {
-      value: getGroqModelStrings().llama3_70b,
-      label: 'Llama 3.1 70B',
-      description: 'Best Groq model for complex tasks'
-    },
-    {
-      value: getGroqModelStrings().llama3_8b,
-      label: 'Llama 3.1 8B',
-      description: 'Fast and lightweight'
-    },
-    {
-      value: getGroqModelStrings().gpt_oss_120b,
-      label: 'GPT OSS 120B',
-      description: 'Balanced performance and speed'
-    }
-  ];
-}
-
 // @[MODEL LAUNCH]: Update the model picker lists below to include/reorder options for the new model.
 // Each user tier (ant, Max/Team Premium, Pro/Team Standard/Enterprise, PAYG 1P, PAYG 3P) has its own list.
 function getModelOptionsBase(fastMode = false): ModelOption[] {
@@ -320,12 +279,9 @@ function getModelOptionsBase(fastMode = false): ModelOption[] {
       description: m.description ?? `[ANT-ONLY] ${m.label} (${m.model})`
     }));
 
-    const ollama = getOllamaOption();
-
     return [
       getDefaultOptionForUser(),
-      ...getGroqOptions(),
-      ...(ollama ? [ollama] : []),
+
       ...antModelOptions,
       getMergedOpus1MOption(fastMode),
       getSonnet46Option(),
@@ -528,19 +484,6 @@ export function getModelOptions(fastMode = false): ModelOption[] {
 
   // Append additional model options fetched during bootstrap
   for (const opt of getGlobalConfig().additionalModelOptionsCache ?? []) {
-    if (!options.some((existing) => existing.value === opt.value)) {
-      options.push(opt);
-    }
-  }
-
-  const ollama = getOllamaOption();
-  if (ollama && !options.some((o) => o.value === ollama.value)) {
-    options.push(ollama);
-  }
-
-  const groqOptions = getGroqOptions();
-
-  for (const opt of groqOptions) {
     if (!options.some((existing) => existing.value === opt.value)) {
       options.push(opt);
     }
