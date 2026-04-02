@@ -13,13 +13,13 @@ export type {
   SandboxFilesystemConfig,
   SandboxIgnoreViolations,
   SandboxNetworkConfig,
-  SandboxSettings,
-} from '../sandboxTypes.js'
+  SandboxSettings
+} from '../sandboxTypes.js';
 // Re-export all generated types
-export * from './coreTypes.generated.js'
+export * from './coreTypes.generated.js';
 
 // Re-export utility types that can't be expressed as Zod schemas
-export type { NonNullableUsage } from './sdkUtilityTypes.js'
+export type { NonNullableUsage } from './sdkUtilityTypes.js';
 
 // Const arrays for runtime usage
 export const HOOK_EVENTS = [
@@ -49,8 +49,8 @@ export const HOOK_EVENTS = [
   'WorktreeRemove',
   'InstructionsLoaded',
   'CwdChanged',
-  'FileChanged',
-] as const
+  'FileChanged'
+] as const;
 
 export const EXIT_REASONS = [
   'clear',
@@ -58,5 +58,7 @@ export const EXIT_REASONS = [
   'logout',
   'prompt_input_exit',
   'other',
-  'bypass_permissions_disabled',
-] as const
+  'bypass_permissions_disabled'
+] as const;
+
+export type HookEvent = (typeof HOOK_EVENTS)[number];

@@ -1,3 +1,5 @@
+import { Attachment } from 'src/utils/attachments';
+
 export type MessageOrigin = {
   kind?: string;
   [key: string]: unknown;
@@ -13,6 +15,7 @@ export type MessageBase = {
   isCompactSummary?: boolean;
   toolUseResult?: unknown;
   origin?: MessageOrigin;
+  attachment?: Attachment;
   [key: string]: unknown;
 };
 
@@ -34,7 +37,7 @@ export type UserMessage = MessageBase & {
 export type AssistantMessage = MessageBase & {
   type: 'assistant';
   message?: {
-    content?: unknown;
+    content?: [{ type: string; name?: string; input?: string }];
     [key: string]: unknown;
   };
 };

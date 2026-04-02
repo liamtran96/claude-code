@@ -1,28 +1,28 @@
-import type { ToolPermissionContext } from '../../Tool.js'
-import { BASH_TOOL_NAME } from '../../tools/BashTool/toolName.js'
-import type { PermissionRule, PermissionRuleSource } from './PermissionRule.js'
+import type { ToolPermissionContext } from '../../Tool.js';
+import { BASH_TOOL_NAME } from '../../tools/BashTool/toolName.js';
+import type { PermissionRule, PermissionRuleSource } from './PermissionRule.js';
 import {
   getAllowRules,
   getAskRules,
   getDenyRules,
-  permissionRuleSourceDisplayString,
-} from './permissions.js'
+  permissionRuleSourceDisplayString
+} from './permissions.js';
 
 /**
  * Type of shadowing that makes a rule unreachable
  */
-export type ShadowType = 'ask' | 'deny'
+export type ShadowType = 'ask' | 'deny';
 
 /**
  * Represents an unreachable permission rule with explanation
  */
 export type UnreachableRule = {
-  rule: PermissionRule
-  reason: string
-  shadowedBy: PermissionRule
-  shadowType: ShadowType
-  fix: string
-}
+  rule: PermissionRule;
+  reason: string;
+  shadowedBy: PermissionRule;
+  shadowType: ShadowType;
+  fix: string;
+};
 
 /**
  * Options for detecting unreachable rules
@@ -33,8 +33,8 @@ export type DetectUnreachableRulesOptions = {
    * When true, tool-wide Bash ask rules from personal settings don't block
    * specific Bash allow rules because sandboxed commands are auto-allowed.
    */
-  sandboxAutoAllowEnabled: boolean
-}
+  sandboxAutoAllowEnabled: boolean;
+};
 
 /**
  * Result of checking if a rule is shadowed.
@@ -42,7 +42,7 @@ export type DetectUnreachableRulesOptions = {
  */
 type ShadowResult =
   | { shadowed: false }
-  | { shadowed: true; shadowedBy: PermissionRule; shadowType: ShadowType }
+  | { shadowed: true; shadowedBy: PermissionRule; shadowType: ShadowType };
 
 /**
  * Check if a permission rule source is shared (visible to other users).
@@ -63,14 +63,14 @@ export function isSharedSettingSource(source: PermissionRuleSource): boolean {
     source === 'projectSettings' ||
     source === 'policySettings' ||
     source === 'command'
-  )
+  );
 }
 
 /**
  * Format a rule source for display in warning messages.
  */
 function formatSource(source: PermissionRuleSource): string {
-  return permissionRuleSourceDisplayString(source)
+  return permissionRuleSourceDisplayString(source);
 }
 
 /**
@@ -79,16 +79,16 @@ function formatSource(source: PermissionRuleSource): string {
 function generateFixSuggestion(
   shadowType: ShadowType,
   shadowingRule: PermissionRule,
-  shadowedRule: PermissionRule,
+  shadowedRule: PermissionRule
 ): string {
-  const shadowingSource = formatSource(shadowingRule.source)
-  const shadowedSource = formatSource(shadowedRule.source)
-  const toolName = shadowingRule.ruleValue.toolName
+  const shadowingSource = formatSource(shadowingRule.source);
+  const shadowedSource = formatSource(shadowedRule.source);
+  const toolName = shadowingRule.ruleValue.toolName;
 
   if (shadowType === 'deny') {
-    return `Remove the "${toolName}" deny rule from ${shadowingSource}, or remove the specific allow rule from ${shadowedSource}`
+    return `Remove the "${toolName}" deny rule from ${shadowingSource}, or remove the specific allow rule from ${shadowedSource}`;
   }
-  return `Remove the "${toolName}" ask rule from ${shadowingSource}, or remove the specific allow rule from ${shadowedSource}`
+  return `Remove the "${toolName}" ask rule from ${shadowingSource}, or remove the specific allow rule from ${shadowedSource}`;
 }
 
 /**
@@ -111,25 +111,25 @@ function generateFixSuggestion(
 function isAllowRuleShadowedByAskRule(
   allowRule: PermissionRule,
   askRules: PermissionRule[],
-  options: DetectUnreachableRulesOptions,
+  options: DetectUnreachableRulesOptions
 ): ShadowResult {
-  const { toolName, ruleContent } = allowRule.ruleValue
+  const { toolName, ruleContent } = allowRule.ruleValue;
 
   // Only check allow rules that have specific content (e.g., "Bash(ls:*)")
   // Tool-wide allow rules cannot be shadowed by ask rules
   if (ruleContent === undefined) {
-    return { shadowed: false }
+    return { shadowed: false };
   }
 
   // Find any tool-wide ask rule for the same tool
   const shadowingAskRule = askRules.find(
-    askRule =>
+    (askRule) =>
       askRule.ruleValue.toolName === toolName &&
-      askRule.ruleValue.ruleContent === undefined,
-  )
+      askRule.ruleValue.ruleContent === undefined
+  );
 
   if (!shadowingAskRule) {
-    return { shadowed: false }
+    return { shadowed: false };
   }
 
   // Special case: Bash with sandbox auto-allow from personal settings
@@ -138,12 +138,12 @@ function isAllowRuleShadowedByAskRule(
   // If the ask rule is from shared settings, other team members may not have sandbox enabled.
   if (toolName === BASH_TOOL_NAME && options.sandboxAutoAllowEnabled) {
     if (!isSharedSettingSource(shadowingAskRule.source)) {
-      return { shadowed: false }
+      return { shadowed: false };
     }
     // Fall through to mark as shadowed - shared settings should always warn
   }
 
-  return { shadowed: true, shadowedBy: shadowingAskRule, shadowType: 'ask' }
+  return { shadowed: true, shadowedBy: shadowingAskRule, shadowType: 'ask' };
 }
 
 /**
@@ -159,28 +159,28 @@ function isAllowRuleShadowedByAskRule(
  */
 function isAllowRuleShadowedByDenyRule(
   allowRule: PermissionRule,
-  denyRules: PermissionRule[],
+  denyRules: PermissionRule[]
 ): ShadowResult {
-  const { toolName, ruleContent } = allowRule.ruleValue
+  const { toolName, ruleContent } = allowRule.ruleValue;
 
   // Only check allow rules that have specific content (e.g., "Bash(ls:*)")
   // Tool-wide allow rules conflict with tool-wide deny rules but are not "shadowed"
   if (ruleContent === undefined) {
-    return { shadowed: false }
+    return { shadowed: false };
   }
 
   // Find any tool-wide deny rule for the same tool
   const shadowingDenyRule = denyRules.find(
-    denyRule =>
+    (denyRule) =>
       denyRule.ruleValue.toolName === toolName &&
-      denyRule.ruleValue.ruleContent === undefined,
-  )
+      denyRule.ruleValue.ruleContent === undefined
+  );
 
   if (!shadowingDenyRule) {
-    return { shadowed: false }
+    return { shadowed: false };
   }
 
-  return { shadowed: true, shadowedBy: shadowingDenyRule, shadowType: 'deny' }
+  return { shadowed: true, shadowedBy: shadowingDenyRule, shadowType: 'deny' };
 }
 
 /**
@@ -192,43 +192,47 @@ function isAllowRuleShadowedByDenyRule(
  */
 export function detectUnreachableRules(
   context: ToolPermissionContext,
-  options: DetectUnreachableRulesOptions,
+  options: DetectUnreachableRulesOptions
 ): UnreachableRule[] {
-  const unreachable: UnreachableRule[] = []
+  const unreachable: UnreachableRule[] = [];
 
-  const allowRules = getAllowRules(context)
-  const askRules = getAskRules(context)
-  const denyRules = getDenyRules(context)
+  const allowRules = getAllowRules(context);
+  const askRules = getAskRules(context);
+  const denyRules = getDenyRules(context);
 
   // Check each allow rule for shadowing
   for (const allowRule of allowRules) {
     // Check deny shadowing first (more severe)
-    const denyResult = isAllowRuleShadowedByDenyRule(allowRule, denyRules)
+    const denyResult = isAllowRuleShadowedByDenyRule(allowRule, denyRules);
     if (denyResult.shadowed) {
-      const shadowSource = formatSource(denyResult.shadowedBy.source)
+      const shadowSource = formatSource(denyResult.shadowedBy.source);
       unreachable.push({
         rule: allowRule,
         reason: `Blocked by "${denyResult.shadowedBy.ruleValue.toolName}" deny rule (from ${shadowSource})`,
         shadowedBy: denyResult.shadowedBy,
         shadowType: 'deny',
-        fix: generateFixSuggestion('deny', denyResult.shadowedBy, allowRule),
-      })
-      continue // Don't also report ask-shadowing if deny-shadowed
+        fix: generateFixSuggestion('deny', denyResult.shadowedBy, allowRule)
+      });
+      continue; // Don't also report ask-shadowing if deny-shadowed
     }
 
     // Check ask shadowing
-    const askResult = isAllowRuleShadowedByAskRule(allowRule, askRules, options)
+    const askResult = isAllowRuleShadowedByAskRule(
+      allowRule,
+      askRules,
+      options
+    );
     if (askResult.shadowed) {
-      const shadowSource = formatSource(askResult.shadowedBy.source)
+      const shadowSource = formatSource(askResult.shadowedBy.source);
       unreachable.push({
         rule: allowRule,
         reason: `Shadowed by "${askResult.shadowedBy.ruleValue.toolName}" ask rule (from ${shadowSource})`,
         shadowedBy: askResult.shadowedBy,
         shadowType: 'ask',
-        fix: generateFixSuggestion('ask', askResult.shadowedBy, allowRule),
-      })
+        fix: generateFixSuggestion('ask', askResult.shadowedBy, allowRule)
+      });
     }
   }
 
-  return unreachable
+  return unreachable;
 }
